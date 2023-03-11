@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import {MatDialog, MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { getValueChanges } from '@angular/fire/remote-config';
+import { MatDialog, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { User } from 'src/model/user.class';
 import { DialogAddUserComponent } from '../dialog-add-user/dialog-add-user.component';
 
@@ -13,10 +15,18 @@ import { DialogAddUserComponent } from '../dialog-add-user/dialog-add-user.compo
 export class UserComponent implements OnInit {
 
   user = new User();
+  allUsers = [];
 
-  constructor(public dialog: MatDialog) { }
+  constructor(public dialog: MatDialog, private firestore: AngularFirestore) { }
 
   ngOnInit(): void {
+    this.firestore
+      .collection('users')
+      .valueChanges({idField: 'ID'})
+      .subscribe((changes: any) => {
+        console.log('Recived changes from DB', changes);
+        this.allUsers = changes;
+      });
   }
 
   openDialog() {
